@@ -1,0 +1,7 @@
+.DS_Store
+nz2/**/*
+temp/**/*
+target/**/*
+*.log
+1_data
+1_index
