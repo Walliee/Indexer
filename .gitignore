@@ -1,4 +1,6 @@
 .DS_Store
+nz50/**/*
+temp50/**/*
 nz2/**/*
 temp/**/*
 target/**/*

@@ -21,7 +21,7 @@ public class Parser {
 
         //parseUrl("http://fun.com/fun.html", builder);
         //parseUrl("across.co.nz/Canadian%27sView.htm", builder);
-        parsePage("", "This is <b>so</b>    <H6>very <b><em>much</h6> fun</em></b>", builder);
+        parsePage("", "This is <b>so</b>    <H6>very very <b><em>much</h6> fun</em></b>", builder);
 
         System.out.println(builder);
     }
@@ -284,7 +284,7 @@ public class Parser {
             if (!flagged) {
                 builder.append('P');
             }
-
+            builder.append(" " + wordIndex);
             builder.append('\n');
         }
     }
