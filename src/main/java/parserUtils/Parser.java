@@ -1,8 +1,11 @@
 package parserUtils;
 
+import java.util.regex.Pattern;
+
 
 /**
  * This is a Java port of the parser written in C by Xiaohui Long
+ * Slightly modified to return offset data. URLs get offset of -1
  * <p>
  * Java port maintained by Alek Dembowski (adembo01 at utopia.poly.edu)
  */
@@ -18,12 +21,16 @@ public class Parser {
     public static void main(String[] args) {
         System.out.println("Testing: http://fun.com/fun.html");
         StringBuilder builder = new StringBuilder();
-
-        //parseUrl("http://fun.com/fun.html", builder);
+        Pattern newLineSplitPattern = Pattern.compile("\n");
+        parseUrl("http://fun.com/fun.html", builder);
         //parseUrl("across.co.nz/Canadian%27sView.htm", builder);
-        parsePage("", "This is <b>so</b>    <H6>very very <b><em>much</h6> fun</em></b>", builder);
-
-        System.out.println(builder);
+        //parsePage("", "This is <b>so</b>    <H6>very very <b><em>much</h6> fun</em></b>", builder);
+        String[] lines = newLineSplitPattern.split(builder);
+        System.out.println(lines.length);
+        for(String temp:lines){
+        	System.out.println(temp);
+        }
+        //System.out.println(builder);
     }
 
     /**

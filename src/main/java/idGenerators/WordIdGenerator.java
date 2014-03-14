@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WordIdGenerator implements Serializable {
-	private static final long serialVersionUID = 4130462893849004290L;
+	private static final long serialVersionUID = -1800257312679737729L;
 	public int wordRegistrarBaseSize = 1000000;
   private Map<String, Integer> invertedWordMap;
   private int wordID;
@@ -22,8 +22,8 @@ public class WordIdGenerator implements Serializable {
 	}
   
   public void close() throws IOException{
-		for(String word: invertedWordMap.keySet() ){
-			fileWriter.write((word+"|@|"+invertedWordMap.get(word)));
+  	for(String word: invertedWordMap.keySet() ){
+			fileWriter.write((word+" $$ "+invertedWordMap.get(word)));
 			fileWriter.write("\n");
 		}
 		fileWriter.close();
@@ -37,5 +37,4 @@ public class WordIdGenerator implements Serializable {
   	}
   	return invertedWordMap.get(word);
   }
-
 }

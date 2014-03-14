@@ -15,7 +15,7 @@ import lexicon.BlockInfo;
 import lexicon.Lexicon;
 
 
-import compression.MyCompression;
+import compression.Compression;
 
 public class PostingWriter {
 	private int  indexFileNumber, currentOffset;
@@ -130,13 +130,13 @@ public class PostingWriter {
 				(docVector.size() * 2));
 		
 		//To Add DeltaCompressed docIDs
-		for(int temp:MyCompression.deltaCompress(docVector))
+		for(int temp:Compression.deltaCompress(docVector))
 			tempList.add(temp);
 		
 		//To Add Frequencies
 		tempList.addAll(freqVector);
 
-		byte[] bytes = MyCompression.encode(tempList);
+		byte[] bytes = Compression.encode(tempList);
 		stream.write(bytes, 0, bytes.length);
 		currentOffset += bytes.length;
 		int mid = currentOffset;
@@ -149,7 +149,7 @@ public class PostingWriter {
 		//To Add all lengthOffsets
 		//tempList.addAll(offsetInfoLength);
 		/*
-		bytes = MyCompression.encode(tempList);
+		bytes = Compression.encode(tempList);
 		stream.write(bytes, 0, bytes.length);
 		currentOffset += bytes.length;
 		*/

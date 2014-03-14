@@ -1,6 +1,5 @@
 package lexicon;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class Lexicon implements Serializable {
-	private static final long serialVersionUID = 5995529641400938710L;
+	private static final long serialVersionUID = 5995840378295938710L;
 	private Map<Integer, LexiconValue> map;
 
 	public Lexicon()  {
@@ -30,10 +29,9 @@ public class Lexicon implements Serializable {
 	
 	public synchronized void put(Integer termId,int freq ,BlockInfo blockInfo){
 		if(!map.containsKey(termId))
-			//TODO Put in a parameter for the arraylist. Rebuild it to ArrayList after Indexing
 			map.put(termId, new LexiconValue( new LinkedList<BlockInfo>(),0));
 		map.get(termId).getBlockInfos().add(blockInfo);
-		map.get(termId).incrGlobalFreq(freq);
+		map.get(termId).incrementFrequency(freq);
 	}
 
 	public int size() {

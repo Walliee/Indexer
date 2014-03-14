@@ -3,6 +3,7 @@ package websearch.indexing;
 import idGenerators.DocIdGenerator;
 import idGenerators.WordIdGenerator;
 import writers.PostingWriter;
+import dataStructures.Page;
 import dataStructures.Posting;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,10 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 import lexicon.Lexicon;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -22,7 +20,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.log4j.Logger;
 import parserUtils.FolderReader;
-import parserUtils.Page;
+import parserUtils.GzipReader;
 import parserUtils.Parser;
 
 public class Indexer 
@@ -33,17 +31,15 @@ public class Indexer
 	static Logger log4j = Logger.getLogger(Indexer.class);
 
 	public Indexer(String inputPath, String outputPath, int termBatchSize) {
-		//super();
 		this.inputPath = inputPath;
 		this.outputPath = outputPath;
 		this.termBatchSize = termBatchSize;
 	}
 
 	public boolean index() throws FileNotFoundException, IOException {
-		boolean outputPathExists = new File(outputPath).mkdir();
+		new File(outputPath).mkdir();
 
 		File  tempFolder= new File(outputPath,"temp");
-
 		tempFolder.mkdir();
 		String tempFolderPath = tempFolder.getAbsolutePath();
 
@@ -57,28 +53,20 @@ public class Indexer
 		Lexicon lexicon = new Lexicon();
 
 		Long start = System.currentTimeMillis();
-		int myloop=0;
-		Set<Integer> activeTaskSet = new HashSet<Integer>();
 
 		DocIdGenerator docIdGenerator = new DocIdGenerator( ( outputPath + "/DocumentID") );
 		WordIdGenerator wordIdGenerator = new WordIdGenerator(100000, (outputPath));
 
-		//System.out.println(inputPath);
-		//System.out.println(folder.listFiles());
 
 		for (File temp : folder.listFiles()) {
-			//System.out.println(temp.getName());
-			TarArchiveInputStream archiveInputStream = new TarArchiveInputStream(
-					new FileInputStream(temp));
+			TarArchiveInputStream archiveInputStream = new TarArchiveInputStream(new FileInputStream(temp));
 			TarArchiveEntry archiveEntry;
-			//System.out.println(archiveInputStream.getNextEntry());
 
 			// for removal of first file which results in invalid path exception
 			archiveInputStream.getNextTarEntry();
-			//			// Now to copy the tar data to a temporary folder
+			// Now to copy the tar data to a temporary folder
 			while (null != (archiveEntry = archiveInputStream.getNextTarEntry())) {
 				if (archiveEntry.isFile()) {
-					//System.out.println(archiveEntry.getName());
 					String[] folds = archiveEntry.getName().split("/");
 					File file = new File(tempFolderPath, folds[(folds.length - 1)]);
 					//log4j.debug(file.getName());
@@ -97,11 +85,11 @@ public class Indexer
 
 			Page page;
 
-			int validPagecounter = 0;
+			int validPageCount = 0;
 			int badPageCount = 0;
 			Pattern newLineSplitPattern = Pattern.compile("\n");
 			Pattern contextSplitPattern = Pattern.compile(" ");
-			int wordID, offset, tcount = 0;
+			int wordID, offset, totalPostingCount = 0;
 			String[] myArray;
 			List<Posting> postingList = new ArrayList<Posting>(termBatchSize);
 
@@ -111,17 +99,15 @@ public class Indexer
 				if (null != page.getContent()) {
 					StringBuilder stringBuilder = new StringBuilder();
 					try {
-						Parser.parseDoc(page.getUrl(), page.getContent(),
-								stringBuilder);
-						//offset = 0;
-						validPagecounter++;
+						Parser.parseDoc(page.getUrl(), page.getContent(), stringBuilder);
+						validPageCount++;
 						String[] lines = newLineSplitPattern.split(stringBuilder);
-						int docID = docIdGenerator.register(page.getUrl(), lines.length);
+						//System.out.println(lines.length);
+						int docID = docIdGenerator.register(page.getUrl(), page.getContent().length());
 						for (String parsedLine : lines) {
 							myArray = contextSplitPattern.split(parsedLine);
 							if (myArray.length > 1) {
-								tcount++;
-								//offset++;
+								totalPostingCount++;
 								wordID = wordIdGenerator.register(myArray[0]);
 								String context = myArray[1];
 								if (myArray.length > 2) {
@@ -133,21 +119,14 @@ public class Indexer
 
 								//log4j.debug(posting);
 								postingList.add(posting);
-								//for (Posting i:postingList)
-									//System.out.println(i);
 								if(postingList.size()==termBatchSize){
-
 									System.gc();	
-									//String tempIndexPath = new File(tempFolderPath,String.valueOf(myloop)).getAbsolutePath();
 									new PostingWriter(postingList,lexicon, indexPath).write();
 									System.out.println("So far "+ (System.currentTimeMillis()-start)+" milliSec have passed since execution.");
 									postingList = null;
 									System.gc();	
 
-									postingList= new ArrayList<Posting>(termBatchSize);
-									myloop++;
-									System.out.println(myloop+" into the batchSize yet executed.");
-									System.out.println(activeTaskSet);
+									postingList = new ArrayList<Posting>(termBatchSize);
 								}
 							}
 						}
@@ -158,10 +137,8 @@ public class Indexer
 			}
 
 			if(postingList.size()!=0){
-				//String tempIndexPath = new File(tempFolderPath,String.valueOf(myloop)).getAbsolutePath();
 				new PostingWriter(postingList,lexicon, indexPath).write();
 				System.gc();	
-				myloop++;
 			}
 
 			File tempDir = new File(tempFolderPath);
@@ -179,10 +156,16 @@ public class Indexer
 		wordIdGenerator.close();
 		docIdGenerator.close();
 		//System.out.println(indexPath);
+		
+		System.out.println("Total Postings: " + totalPostingCount);
+		System.out.println("Total Time taken: " + (System.currentTimeMillis() - start));
+		System.out.println("Done. Parsed " + validPageCount + " files.");
+		System.out.println(GzipReader.totalFile);
+		System.out.println(GzipReader.rejectFile + " Rejected");
+		System.out.println("BadPageCount : " + badPageCount);
+		
 		return true;
 	}
-
-
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		String inputPath = "/Users/Walliee/Documents/workspace/Indexing/nz2";

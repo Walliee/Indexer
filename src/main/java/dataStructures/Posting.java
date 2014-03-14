@@ -47,5 +47,4 @@ public class Posting implements Comparable<Posting> {
 		return "Posting [wordID=" + wordID + ", docID=" + docID + ", offset="
 				+ offset + ", context=" + context + "]";
 	}
-
 }

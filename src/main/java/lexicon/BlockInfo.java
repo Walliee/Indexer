@@ -4,7 +4,7 @@ package lexicon;
 import java.io.Serializable;
 
 public class BlockInfo implements  Serializable{
-	private static final long serialVersionUID = -7989954884023179545L;
+	private static final long serialVersionUID = -7989954888390481175L;
 	private int fileNumber;
 	private int startOffset;
 	private int endOffset;

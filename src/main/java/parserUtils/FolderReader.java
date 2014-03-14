@@ -9,23 +9,21 @@ import java.util.Map;
 //import parsingUtils.FolderReader;
 import parserUtils.Parser;
 import org.apache.log4j.Logger;
+import dataStructures.Page;
 
 public class FolderReader {
-	//private String outputDirectoryPath;
 	private File folderFile;
 	private Map<String, File> indexFileMap, dataFileMap;
 	private GzipReader gzipReader;
 	static Logger log4j = Logger.getLogger(FolderReader.class);
 
 	public FolderReader(File folderFile) throws IOException {
-		super();
 		this.folderFile = folderFile;
 		if (null == folderFile)
 			throw new IOException("Cannot take a null parameter as folderFile");
 		indexFileMap = new HashMap<String, File>();
 		dataFileMap = new HashMap<String, File>();
 		for (File temp : folderFile.listFiles()) {
-			//System.out.println(temp.getName());
 			if (temp.getPath().contains("_index"))
 				indexFileMap.put(temp.getPath().replaceAll("_index", ""), temp);
 			else if (temp.getPath().contains("_data"))
@@ -34,9 +32,9 @@ public class FolderReader {
 		if (indexFileMap.isEmpty() || dataFileMap.isEmpty()
 				|| indexFileMap.size() != dataFileMap.size())
 			throw new IOException(
-					"There must be equal number of non-zero index and data files in the folder");
+					"Unequal number of index files.");
 		if (!openGzipReader())
-			throw new IOException("Unable to detect any relevant files");
+			throw new IOException("No Gzipped file found!");
 	}
 
 	public Page next() throws IOException {
@@ -47,7 +45,6 @@ public class FolderReader {
 			// switch to the next file pair and call next() recursively over it.
 			// will return null condition mentioned below when reaches end of
 			// fileset
-
 			if (openGzipReader())
 				return next();
 		}
@@ -59,7 +56,6 @@ public class FolderReader {
 		Object[] dataFiles = dataFileMap.keySet().toArray();
 		if (0 == dataFiles.length)
 			return false;
-		// System.out.println(dataFiles[0]);
 		if (null != gzipReader)
 			gzipReader.close();
 		try {
@@ -68,45 +64,12 @@ public class FolderReader {
 		} catch (EOFException e) {
 			return openGzipReader();
 		}
-
 		return true;
-	}
-
-	public File getFolderFile() {
-		return folderFile;
-	}
-
-	public void setFolderFile(File folderFile) {
-		this.folderFile = folderFile;
-	}
-
-	public Map<String, File> getIndexFileMap() {
-		return indexFileMap;
-	}
-
-	public void setIndexFileMap(Map<String, File> indexFileMap) {
-		this.indexFileMap = indexFileMap;
-	}
-
-	public Map<String, File> getDataFileMap() {
-		return dataFileMap;
-	}
-
-	public void setDataFileMap(Map<String, File> dataFileMap) {
-		this.dataFileMap = dataFileMap;
-	}
-
-	public GzipReader getNzFileReader() {
-		return gzipReader;
-	}
-
-	public void setNzFileReader(GzipReader gzipReader) {
-		this.gzipReader = gzipReader;
 	}
 
 	@Override
 	public String toString() {
-		return "NZFolderReader [folderFile=" + folderFile + ", indexFileMap="
+		return "FolderReader [folderFile=" + folderFile + ", indexFileMap="
 				+ indexFileMap + ", dataFileMap=" + dataFileMap
 				+ ", gzipReader=" + gzipReader + "]";
 	}
@@ -134,6 +97,4 @@ public class FolderReader {
 		System.out.println((System.currentTimeMillis() - starttime) + " ms");
 
 	}
-
-
 }

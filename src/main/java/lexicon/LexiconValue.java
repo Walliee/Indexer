@@ -7,37 +7,27 @@ import java.util.List;
 public class LexiconValue implements Serializable{
 	private static final long serialVersionUID = -8826253705045189110L;
 	private List<BlockInfo> blockInfos;
-	private int globalFrequency;
+	private int frequency;
 	
 	public LexiconValue(LinkedList<BlockInfo> linkedList, int i) {
 		this.blockInfos = linkedList;
-		this.globalFrequency = i;
+		this.frequency = i;
 	}
 
 	public List<BlockInfo> getBlockInfos() {
 		return blockInfos;
-		
 	}
 
-	public void setBlockInfos(List<BlockInfo> blockInfos) {
-		this.blockInfos = blockInfos;
-	}
-
-	public void incrGlobalFreq(int freq) {
-		globalFrequency+= freq;
-		
+	public void incrementFrequency(int freq) {
+		frequency+= freq;
 	}
 
 	public int getGlobalFrequency() {
-		return globalFrequency;
-	}
-
-	public void setGlobalFrequency(int globalFrequency) {
-		this.globalFrequency = globalFrequency;
+		return frequency;
 	}
 
 	@Override
 	public String toString() {
-		return "LexiconValue [globalFrequency=" + globalFrequency + "]";
+		return "LexiconValue [Frequency=" + frequency + "]";
 	}
 }
