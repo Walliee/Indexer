@@ -1,5 +1,9 @@
 package dataStructures;
 
+/**
+ * Data structure for storing page URL, page content and status.
+ *
+ */
 public class Page {
   private String url, content, status;
 

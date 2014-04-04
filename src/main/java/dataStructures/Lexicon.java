@@ -1,4 +1,4 @@
-package lexicon;
+package dataStructures;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -7,18 +7,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class implements the Lexicon data structure
+ *
+ */
 public class Lexicon implements Serializable {
 	private static final long serialVersionUID = 5995840378295938710L;
 	private Map<Integer, LexiconValue> map;
 
 	public Lexicon()  {
+		//Integer is the wordID and LexiconValue is the data structure that stores 
+		//further information as to where to find the word in the index files.
 		this.map = new HashMap<Integer, LexiconValue>();
 	}
-
+	
+	//returns list of all the blockInfos for all the indexfiles
 	public List<BlockInfo> get(Object arg0) {
 		return map.get(arg0).getBlockInfos();
 	}
 
+	//returns the blockInfo for a particular index file
 	public BlockInfo get(Object arg0, int fileNumber){
 		for(BlockInfo blockInfo: map.get(arg0).getBlockInfos()){
 			if(blockInfo.getFileNumber()==fileNumber)
@@ -27,11 +35,12 @@ public class Lexicon implements Serializable {
 		return null;
 	}
 	
-	public synchronized void put(Integer termId,int freq ,BlockInfo blockInfo){
-		if(!map.containsKey(termId))
-			map.put(termId, new LexiconValue( new LinkedList<BlockInfo>(),0));
-		map.get(termId).getBlockInfos().add(blockInfo);
-		map.get(termId).incrementFrequency(freq);
+	// Adds entry to Lexicon
+	public synchronized void put(Integer wordId,int freq ,BlockInfo blockInfo){
+		if(!map.containsKey(wordId))
+			map.put(wordId, new LexiconValue( new LinkedList<BlockInfo>(),0));
+		map.get(wordId).getBlockInfos().add(blockInfo);
+		map.get(wordId).incrementFrequency(freq);
 	}
 
 	public int size() {

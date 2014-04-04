@@ -7,9 +7,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class assigns each word to its word ID
+ *
+ */
 public class WordIdGenerator implements Serializable {
 	private static final long serialVersionUID = -1800257312679737729L;
-	public int wordRegistrarBaseSize = 1000000;
   private Map<String, Integer> invertedWordMap;
   private int wordID;
   private FileWriter fileWriter;
@@ -23,13 +26,15 @@ public class WordIdGenerator implements Serializable {
   
   public void close() throws IOException{
   	for(String word: invertedWordMap.keySet() ){
-			fileWriter.write((word+" $$ "+invertedWordMap.get(word)));
+			fileWriter.write((word+"$$"+invertedWordMap.get(word)));
 			fileWriter.write("\n");
 		}
 		fileWriter.close();
 	}
   
   public synchronized int register(String word){
+  	//checks to see if word already has a wordID, if it has a 
+  	//wordID returns wordID else assigns new wordID and returns it
   	if(!invertedWordMap.containsKey(word)){
   		wordID++;
   	  invertedWordMap.put(word, wordID);

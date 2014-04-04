@@ -6,11 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-//import parsingUtils.FolderReader;
 import parserUtils.Parser;
 import org.apache.log4j.Logger;
 import dataStructures.Page;
 
+/**
+ * Class for reading untarred .gz data and index files and ensuring correctness of input.
+ *
+ */
 public class FolderReader {
 	private File folderFile;
 	private Map<String, File> indexFileMap, dataFileMap;
@@ -42,9 +45,6 @@ public class FolderReader {
 		if (null != (page = gzipReader.next()))
 			return page;
 		else {
-			// switch to the next file pair and call next() recursively over it.
-			// will return null condition mentioned below when reaches end of
-			// fileset
 			if (openGzipReader())
 				return next();
 		}

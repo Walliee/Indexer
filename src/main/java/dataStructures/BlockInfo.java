@@ -1,8 +1,12 @@
 
-package lexicon;
+package dataStructures;
 
 import java.io.Serializable;
 
+/**
+ * Data structure to store index file number, start offset and end offset for each word in each intermediate index file.
+ *
+ */
 public class BlockInfo implements  Serializable{
 	private static final long serialVersionUID = -7989954888390481175L;
 	private int fileNumber;
@@ -10,7 +14,6 @@ public class BlockInfo implements  Serializable{
 	private int endOffset;
 
 	public BlockInfo(int fileNumber, int startOffset, int endOffset) {
-		super();
 		this.fileNumber = fileNumber;
 		this.startOffset = startOffset;
 		this.endOffset = endOffset;
@@ -20,24 +23,12 @@ public class BlockInfo implements  Serializable{
 		return fileNumber;
 	}
 
-	public void setFileNumber(int fileNumber) {
-		this.fileNumber = fileNumber;
-	}
-
 	public int getStartOffset() {
 		return startOffset;
 	}
 
-	public void setStartOffset(int startOffset) {
-		this.startOffset = startOffset;
-	}
-
 	public int getEndOffset() {
 		return endOffset;
-	}
-
-	public void setEndOffset(int endOffset) {
-		this.endOffset = endOffset;
 	}
 
 	@Override

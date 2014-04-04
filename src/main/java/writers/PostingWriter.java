@@ -1,5 +1,7 @@
 package writers;
 
+import dataStructures.BlockInfo;
+import dataStructures.Lexicon;
 import dataStructures.Posting;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,17 +12,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
-import lexicon.BlockInfo;
-import lexicon.Lexicon;
-
-
 import compression.Compression;
 
+/**
+ * Class for writing data to intermediate index files.
+ *
+ */
 public class PostingWriter {
 	private int  indexFileNumber, currentOffset;
 	private List<Posting> postingList;
-	//private OffsetInfoWriter offsetInfoWriter;
 	private Lexicon lexicon;
 	private OutputStream stream;
 	private static int indexCounter = 0;
@@ -70,39 +70,21 @@ public class PostingWriter {
 				if (currentPosting.getDocID() != prevDocID) {
 					docVector.add(prevDocID);
 					freqVector.add(freqCounter);
-					
-					//Write the offset and contextvectors to the offsetfile here
-					//OffsetBlock offsetBlock = offsetInfoWriter.write(offsetVector, contextVector);
-					//offsetInfoStart.add(offsetBlock.getStartOffset());
-					//offsetInfoLength.add((offsetBlock.getEndOffset()-offsetBlock.getStartOffset()));
 					freqCounter = 0;
 					prevDocID = currentPosting.getDocID();
-					//offsetVector.clear();
-					//contextVector.clear();
 				}
 				freqCounter++;
-				//offsetVector.add(currentPosting.getOffset());
-				//contextVector.add(currentPosting.getContext());
-
 			} else {
 				try {
 					docVector.add(prevDocID);
 					freqVector.add(freqCounter);
 					
-					//Write the offset and contextvectors to the offsetfile here
-					//OffsetBlock offsetBlock = offsetInfoWriter.write(offsetVector, contextVector);
-					//offsetInfoStart.add(offsetBlock.getStartOffset());
-					//offsetInfoLength.add((offsetBlock.getEndOffset()-offsetBlock.getStartOffset()));
 					freqCounter = 0;
 					prevDocID = currentPosting.getDocID();
-					//offsetVector.clear();
-					//contextVector.clear();
 
 					currentOffset = PostingWriter.writePosting(prevWordID, docVector, freqVector, stream, currentOffset, indexCounter, lexicon);
 					prevWordID = currentPosting.getWordID();
 					freqCounter++;
-					//offsetVector.add(currentPosting.getOffset());
-					//contextVector.add(currentPosting.getContextID());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -113,7 +95,6 @@ public class PostingWriter {
 			stream.close();
 			System.out.println("Writing " + indexCounter + " Done.");
 			
-			//System.gc();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -129,11 +110,9 @@ public class PostingWriter {
 		List<Integer> tempList = new ArrayList<Integer>(
 				(docVector.size() * 2));
 		
-		//To Add DeltaCompressed docIDs
 		for(int temp:Compression.deltaCompress(docVector))
 			tempList.add(temp);
 		
-		//To Add Frequencies
 		tempList.addAll(freqVector);
 
 		byte[] bytes = Compression.encode(tempList);
@@ -141,18 +120,7 @@ public class PostingWriter {
 		currentOffset += bytes.length;
 		int mid = currentOffset;
 		
-		tempList = new LinkedList<Integer>();
-		
-		//To add all startOffset
-		//tempList.addAll(offsetInfoStart);
-		
-		//To Add all lengthOffsets
-		//tempList.addAll(offsetInfoLength);
-		/*
-		bytes = Compression.encode(tempList);
-		stream.write(bytes, 0, bytes.length);
-		currentOffset += bytes.length;
-		*/
+		tempList = new ArrayList<Integer>();
 		
 		int sum = 0;
 		for(int i=0;i<freqVector.size();i++)
@@ -161,11 +129,8 @@ public class PostingWriter {
 		lexicon.put(wordID, sum, new BlockInfo(
 				fileNumber, start, mid));
 		
-		// Reinitialize all the vectors and prev values.
 		docVector.clear();
 		freqVector.clear();
-		//offsetVector.clear();
-		//contextVector.clear();
 		
 		return currentOffset;
 	}

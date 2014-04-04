@@ -4,6 +4,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 
+/**
+ * This class handles and assigns doc ID based on the order in which they are read.
+ *
+ */
 public class DocIdGenerator implements Serializable {
 	private static final long serialVersionUID = -3574390161623137988L;
 	private int docCounter;
@@ -14,17 +18,13 @@ public class DocIdGenerator implements Serializable {
 		docCounter = 0;
 	}
 
-	public void close(){
-		try {
+	public void close() throws IOException{
 			fileWriter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public synchronized int register(String url, int documentLength) throws IOException{
 		docCounter++;
-		fileWriter.write(url+" $$ "+String.valueOf(docCounter)+" $$ "+documentLength);
+		fileWriter.write(url+"$$"+String.valueOf(docCounter)+"$$"+documentLength);
 		fileWriter.write("\n");
 		return docCounter;
 	}

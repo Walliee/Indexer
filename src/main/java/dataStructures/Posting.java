@@ -1,5 +1,9 @@
 package dataStructures;
 
+/**
+ * Data structure for handling intermediate index entries
+ *
+ */
 public class Posting implements Comparable<Posting> {
 	private int wordID, docID, offset = -1;
 	private String context;
@@ -17,6 +21,8 @@ public class Posting implements Comparable<Posting> {
 		this.context = context;
 	}
 	
+	// Overriding compareTo for sorting by wordID and then docID
+	@Override
 	public int compareTo(Posting o) {
 		if(this.getWordID()!=o.getWordID())
 			return (this.getWordID()>o.getWordID()? 1:-1);

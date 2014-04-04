@@ -2,7 +2,9 @@ package websearch.indexing;
 
 import idGenerators.DocIdGenerator;
 import idGenerators.WordIdGenerator;
+import dataStructures.CorpusStatistics;
 import writers.PostingWriter;
+import dataStructures.Lexicon;
 import dataStructures.Page;
 import dataStructures.Posting;
 import java.io.File;
@@ -14,7 +16,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import lexicon.Lexicon;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
@@ -23,6 +24,10 @@ import parserUtils.FolderReader;
 import parserUtils.GzipReader;
 import parserUtils.Parser;
 
+/**
+ * Class for generating intermediate index files and lexicon structure.
+ *
+ */
 public class Indexer 
 {
 	private String inputPath;
@@ -59,12 +64,12 @@ public class Indexer
 
 
 		for (File temp : folder.listFiles()) {
+//			if(temp.getPath() == "/Users/Walliee/Documents/workspace/Indexing/nz/.DS_Store" ) {
+//				continue;
+//			}
 			TarArchiveInputStream archiveInputStream = new TarArchiveInputStream(new FileInputStream(temp));
 			TarArchiveEntry archiveEntry;
-
-			// for removal of first file which results in invalid path exception
 			archiveInputStream.getNextTarEntry();
-			// Now to copy the tar data to a temporary folder
 			while (null != (archiveEntry = archiveInputStream.getNextTarEntry())) {
 				if (archiveEntry.isFile()) {
 					String[] folds = archiveEntry.getName().split("/");
@@ -80,16 +85,17 @@ public class Indexer
 				}
 			}
 			archiveInputStream.close();
-			System.out.println("Done Uncompressing " + temp);
+			System.out.println("Uncompressed " + temp);
 		}
 
 			Page page;
 
 			int validPageCount = 0;
 			int badPageCount = 0;
+			int totalPostingCount = 0;
 			Pattern newLineSplitPattern = Pattern.compile("\n");
 			Pattern contextSplitPattern = Pattern.compile(" ");
-			int wordID, offset, totalPostingCount = 0;
+			int wordID, offset;
 			String[] myArray;
 			List<Posting> postingList = new ArrayList<Posting>(termBatchSize);
 
@@ -122,7 +128,7 @@ public class Indexer
 								if(postingList.size()==termBatchSize){
 									System.gc();	
 									new PostingWriter(postingList,lexicon, indexPath).write();
-									System.out.println("So far "+ (System.currentTimeMillis()-start)+" milliSec have passed since execution.");
+									System.out.println("So far "+ (System.currentTimeMillis()-start)+"ms have passed since execution.");
 									postingList = null;
 									System.gc();	
 
@@ -153,23 +159,30 @@ public class Indexer
 		objectOutputStream.writeObject(lexicon);
 		objectOutputStream.close();	
 		
-		wordIdGenerator.close();
-		docIdGenerator.close();
+		try {
+			wordIdGenerator.close();
+			docIdGenerator.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		//System.out.println(indexPath);
 		
-		System.out.println("Total Postings: " + totalPostingCount);
 		System.out.println("Total Time taken: " + (System.currentTimeMillis() - start));
-		System.out.println("Done. Parsed " + validPageCount + " files.");
-		System.out.println(GzipReader.totalFile);
-		System.out.println(GzipReader.rejectFile + " Rejected");
-		System.out.println("BadPageCount : " + badPageCount);
+		System.out.println("No. of pages parsed: " + validPageCount);
+		System.out.println("Bad Page Count : " + badPageCount);
+		
+		File file = new File(outputPath,"IndexStatistics");
+		objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));
+		objectOutputStream.writeObject(new CorpusStatistics(GzipReader.totalFile, totalPostingCount));
+		objectOutputStream.close();
 		
 		return true;
 	}
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		String inputPath = "/Users/Walliee/Documents/workspace/Indexing/nz2";
-		String outputPath = "/Users/Walliee/Documents/workspace/Indexing/temp";
+		String inputPath = "/Users/Walliee/Documents/workspace/Indexing/nz50";
+		String outputPath = "/Users/Walliee/Documents/workspace/Indexing/temp50";
 		int batchSize= 5000000;
 		new Indexer(inputPath,outputPath,batchSize).index();
 	}

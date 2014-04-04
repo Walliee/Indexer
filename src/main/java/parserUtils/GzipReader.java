@@ -12,6 +12,10 @@ import java.util.zip.GZIPInputStream;
 import org.apache.log4j.Logger;
 import dataStructures.Page;
 
+/**
+ * Class for reading untarred .gz data and index files and ensuring correctness of input.
+ *
+ */
 public class GzipReader {
   BufferedReader indexFileReader;
   InputStreamReader dataInputStreamReader;
@@ -92,8 +96,8 @@ public class GzipReader {
 		    }
 		}
 		System.out.println((System.currentTimeMillis() - starttime) + " ms");
-		System.out.println("Done. Parsed " + counter + " files.");
+		System.out.println("Done. " + counter + " files parsed.");
 		System.out.println(GzipReader.totalFile);
-		System.out.println(GzipReader.rejectFile + " Rejected");
+		System.out.println(GzipReader.rejectFile + " Rejected files");
   }
 }

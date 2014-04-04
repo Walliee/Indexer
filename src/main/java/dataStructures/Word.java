@@ -1,5 +1,9 @@
 package dataStructures;
 
+/**
+ * It is a data structure for storing word ID and context w.r.t each word
+ *
+ */
 public class Word {
 	private int wordID;
 	private String word;
@@ -25,7 +29,6 @@ public class Word {
 
 	@Override
 	public String toString() {
-		return "Word [wordID=" + wordID + ", Word=" + word + ", context=" + context
-				+ "]";
+		return "Word [wordID=" + wordID + ", Word=" + word + ", context=" + context + "]";
 	}
 }

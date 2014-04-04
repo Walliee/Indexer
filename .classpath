@@ -12,7 +12,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="src/main/java/|src/test/java/|log4j/|nz2/|src/main/|src/test/|target/|temp/index/|temp/temp/|src/|temp/" kind="src" path=""/>
+	<classpathentry excluding="src/main/java/|src/test/java/|log4j/|src/main/|src/test/|target/|temp/index/|temp/temp/|src/|temp/|temp50/|nz50/|nz2/" kind="src" path=""/>
 	<classpathentry excluding="main/java/|test/java/" kind="src" path="src"/>
 	<classpathentry kind="src" path="temp"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
